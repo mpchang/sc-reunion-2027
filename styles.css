@@ -580,31 +580,21 @@ a { color: inherit; }
   font-variant-numeric: tabular-nums;
 }
 .tl__flight {
-  display: flex;
-  align-items: baseline;
-  gap: .34em;
   font-family: var(--mono);
-  font-size: .72rem;
+  font-size: .68rem;
   letter-spacing: .04em;
   color: var(--ink-faint);
 }
-.tl__chip--out .tl__flight { justify-content: flex-end; }
 
-/* the flight number carries the weight; the airport stays quiet */
+/* the flight number is the payload of the whole chip */
 .tl__no {
+  font-family: var(--mono);
   font-weight: 700;
   font-size: .76rem;
   color: var(--mango);
   letter-spacing: .05em;
 }
 .tl__chip--out .tl__no { color: var(--hibiscus); }
-.tl__port {
-  padding: 0 .3em;
-  border: 1px solid color-mix(in srgb, var(--cream) 20%, transparent);
-  border-radius: 3px;
-  font-size: .64rem;
-  color: var(--ink-soft);
-}
 .tl__chip--fuzzy .tl__no { color: var(--ink-soft); }
 
 .tl__key {

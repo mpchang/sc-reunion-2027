@@ -30,10 +30,12 @@ const TRIP = {
 
    Setting it up, once:
      1. Make a sheet with these headers on row 1, one row per household:
-          id | arriving | arr flight | from | arr time |
-               leaving  | dep flight | to   | dep time
+          id | arrival flight | arrival date | arrival time |
+               departure flight | departure date | departure time
         Fill the id column with: barry, francois, kunal, rohit, nitin,
         dk, matt — those have to match the ids further down this file.
+        Headers are matched loosely, so "arr time" and "arrival time"
+        both work, and column order doesn't matter.
      2. Data > Data validation on the date and time columns, so people
         get pickers instead of free text. Worth the two minutes.
      3. Protect row 1 and the id column (Data > Protect sheets) so a
@@ -256,24 +258,24 @@ const PREVIEW_DATA = {
   },
   households: {
     barry:    { arrive: '2027-02-05', depart: '2027-02-08', flights: [
-      { dir: 'in',  airline: 'Alaska',   no: 'AS 1284', from: 'SEA', to: 'SJD', date: '2027-02-05', time: '13:20' },
-      { dir: 'out', airline: 'Alaska',   no: 'AS 1285', from: 'SJD', to: 'SEA', date: '2027-02-08', time: '14:45' },
+      { dir: 'in',  airline: 'Alaska',   no: 'AS 1284', date: '2027-02-05', time: '13:20' },
+      { dir: 'out', airline: 'Alaska',   no: 'AS 1285', date: '2027-02-08', time: '14:45' },
     ]},
     francois: { arrive: '2027-02-04', depart: '2027-02-08', flights: [
-      { dir: 'in',  airline: 'United',   no: 'UA 1902', from: 'SFO', to: 'SJD', date: '2027-02-04', time: '11:05' },
+      { dir: 'in',  airline: 'United',   no: 'UA 1902', date: '2027-02-04', time: '11:05' },
     ]},
     kunal:    { arrive: '2027-02-04', depart: '2027-02-08', flights: [
-      { dir: 'in',  airline: 'American', no: 'AA 1423', from: 'JFK', to: 'SJD', date: '2027-02-04', time: '15:40' },
-      { dir: 'out', airline: 'American', no: 'AA 1424', from: 'SJD', to: 'JFK', date: '2027-02-08', time: '16:10' },
+      { dir: 'in',  airline: 'American', no: 'AA 1423', date: '2027-02-04', time: '15:40' },
+      { dir: 'out', airline: 'American', no: 'AA 1424', date: '2027-02-08', time: '16:10' },
     ]},
     rohit:    { arrive: '2027-02-04', depart: '2027-02-07', flights: [] },
     nitin:    { arrive: '2027-02-05', depart: '2027-02-08', flights: [
-      { dir: 'in',  airline: 'Delta',    no: 'DL 622',  from: 'ATL', to: 'SJD', date: '2027-02-05', time: '12:15' },
+      { dir: 'in',  airline: 'Delta',    no: 'DL 622',  date: '2027-02-05', time: '12:15' },
     ]},
     dk:       { arrive: null, depart: null, flights: [] },
     matt:     { arrive: '2027-02-04', depart: '2027-02-08', flights: [
-      { dir: 'in',  airline: 'Southwest', no: 'WN 2210', from: 'DEN', to: 'SJD', date: '2027-02-04', time: '10:30' },
-      { dir: 'out', airline: 'Southwest', no: 'WN 2211', from: 'SJD', to: 'DEN', date: '2027-02-08', time: '13:55' },
+      { dir: 'in',  airline: 'Southwest', no: 'WN 2210', date: '2027-02-04', time: '10:30' },
+      { dir: 'out', airline: 'Southwest', no: 'WN 2211', date: '2027-02-08', time: '13:55' },
     ]},
   },
 };

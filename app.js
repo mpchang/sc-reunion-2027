@@ -273,25 +273,18 @@
     node.style.left = `${pctOf(p.t, ax)}%`;
 
     const f = p.flight;
-    const port = f ? (p.dir === 'in' ? f.from : f.to) : null;
 
     node.append(el('span', 'tl__time', p.exact ? clock(p.t) : shortDay(isoOf(p.t))));
 
     /* The flight number is the thing people actually come here to read,
-       so it gets its own emphasis rather than being folded into one dim
-       line with the airport code. */
-    const line = el('span', 'tl__flight');
-    if (f) {
-      line.appendChild(el('b', 'tl__no', f.no || 'booked'));
-      if (port) line.appendChild(el('span', 'tl__port', port));
-    } else {
-      line.textContent = 'time TBD';
-    }
-    node.append(line);
+       so it carries the emphasis on the second line. */
+    node.append(f
+      ? el('span', 'tl__no', f.no || 'booked')
+      : el('span', 'tl__flight', 'time TBD'));
 
     node.title = `${p.h.short} ${p.dir === 'in' ? 'arrives' : 'leaves'} ` +
       `${shortDay(isoOf(p.t))}${p.exact ? ' at ' + clock(p.t) : ', time not confirmed'}` +
-      (f ? ` — ${f.airline || ''} ${f.no || ''} ${port || ''}`.replace(/\s+/g, ' ') : '');
+      (f ? ` — ${f.airline || ''} ${f.no || ''}`.replace(/\s+/g, ' ').trimEnd() : '');
     return node;
   }
 
@@ -700,14 +693,12 @@
      all land in the same place. */
   const COLS = {
     id:        ['id', 'household', 'who'],
-    arriving:  ['arriving', 'arrive', 'arrival', 'arrivaldate', 'in'],
-    arrFlight: ['arrflight', 'arrivalflight', 'flightin', 'inflight'],
-    from:      ['from', 'origin', 'fromairport'],
-    arrTime:   ['arrtime', 'arrivaltime', 'timein', 'intime'],
-    leaving:   ['leaving', 'leave', 'depart', 'departure', 'departuredate', 'out'],
-    depFlight: ['depflight', 'departureflight', 'flightout', 'outflight'],
-    to:        ['to', 'destination', 'toairport'],
-    depTime:   ['deptime', 'departuretime', 'timeout', 'outtime'],
+    arrFlight: ['arrivalflight', 'arrflight', 'flightin', 'inflight'],
+    arrDate:   ['arrivaldate', 'arriving', 'arrive', 'arrival', 'arrdate'],
+    arrTime:   ['arrivaltime', 'arrtime', 'timein', 'intime'],
+    depFlight: ['departureflight', 'depflight', 'flightout', 'outflight'],
+    depDate:   ['departuredate', 'leaving', 'leave', 'depart', 'departure', 'depdate'],
+    depTime:   ['departuretime', 'deptime', 'timeout', 'outtime'],
   };
 
   const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -794,11 +785,6 @@
     return `${String(h).padStart(2, '0')}:${String(mi).padStart(2, '0')}`;
   }
 
-  const readPort = (raw) => {
-    const v = String(raw || '').trim().toUpperCase();
-    return /^[A-Z]{3}$/.test(v) ? v : (v || null);
-  };
-
   const readFlightNo = (raw) => {
     const v = String(raw || '').trim().toUpperCase().replace(/\s+/g, ' ');
     return v || null;
@@ -822,14 +808,12 @@
       const get = (f) => (at[f] === undefined ? '' : (r[at[f]] || '').trim());
       return {
         id: slug(get('id')),
-        arriving: readDate(get('arriving')),
-        leaving: readDate(get('leaving')),
         arrFlight: readFlightNo(get('arrFlight')),
+        arrDate: readDate(get('arrDate')),
         arrTime: readTime(get('arrTime')),
-        from: readPort(get('from')),
         depFlight: readFlightNo(get('depFlight')),
+        depDate: readDate(get('depDate')),
         depTime: readTime(get('depTime')),
-        to: readPort(get('to')),
       };
     }).filter((r) => r.id);
   }
@@ -844,17 +828,15 @@
       const r = byId[h.id];
       if (!r) return;
 
-      if (r.arriving) h.arrive = r.arriving;
-      if (r.leaving) h.depart = r.leaving;
+      if (r.arrDate) h.arrive = r.arrDate;
+      if (r.depDate) h.depart = r.depDate;
 
       const flights = [];
-      if (r.arrFlight || r.arrTime || r.from) {
-        flights.push({ dir: 'in', no: r.arrFlight, from: r.from,
-                       to: TRIP.airport, date: r.arriving, time: r.arrTime });
+      if (r.arrFlight || r.arrTime) {
+        flights.push({ dir: 'in', no: r.arrFlight, date: r.arrDate, time: r.arrTime });
       }
-      if (r.depFlight || r.depTime || r.to) {
-        flights.push({ dir: 'out', no: r.depFlight, from: TRIP.airport,
-                       to: r.to, date: r.leaving, time: r.depTime });
+      if (r.depFlight || r.depTime) {
+        flights.push({ dir: 'out', no: r.depFlight, date: r.depDate, time: r.depTime });
       }
       if (flights.length) h.flights = flights;
     });

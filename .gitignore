@@ -1,0 +1,6 @@
+.DS_Store
+**/.DS_Store
+
+# full-resolution source photos — 31 MB and counting, kept locally so
+# crops can be redone without asking anyone for their photo twice
+photos/originals/

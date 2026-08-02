@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SC Reunion 2027 — Feliz Cumpleaños</title>
+<meta name="description" content="Feliz Cumpleaños. The State College reunion, twenty years on, plus everyone we've collected since. Cabo San Lucas, February 4–8, 2027.">
+<meta name="theme-color" content="#06302E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Outfit:wght@300..700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- fixed photographic backdrop; glass panels read against this -->
+<div class="backdrop" aria-hidden="true">
+  <div class="backdrop__stage" id="backdropStage"></div>
+  <div class="backdrop__dusk"></div>
+  <div class="backdrop__scrim"></div>
+  <div class="backdrop__veil" id="backdropVeil"></div>
+  <div class="backdrop__glow"></div>
+  <div class="backdrop__grain"></div>
+</div>
+
+<a class="skip" href="#main">Skip to trip details</a>
+
+<header class="hero" id="top">
+  <div class="hero__inner">
+    <p class="eyebrow">
+      <span>State College, PA</span>
+      <span class="eyebrow__arrow" aria-hidden="true">→</span>
+      <span>Cabo San Lucas</span>
+    </p>
+
+    <h1 class="hero__title">
+      <span class="hero__word">SC Reunion</span>
+      <span class="hero__year">2027</span>
+    </h1>
+
+    <p class="tagline" id="tagline"></p>
+
+    <p class="hero__dates">Thu Feb 4 <span aria-hidden="true">—</span> Mon Feb 8</p>
+
+    <p class="hero__blurb">
+      Twenty years out of Happy Valley, and this time everybody comes:
+      wives, girlfriends, and four kids who have no idea what they’re in for.
+    </p>
+
+    <div class="countdown glass" id="countdown" aria-live="polite">
+      <span class="countdown__num" id="countdownNum">—</span>
+      <span class="countdown__unit" id="countdownUnit">days out</span>
+    </div>
+
+    <p class="hero__credit" id="heroCredit" hidden></p>
+  </div>
+
+  <a class="scrollcue" href="#main">
+    <span>The details</span>
+    <span class="scrollcue__line" aria-hidden="true"></span>
+  </a>
+</header>
+
+<main id="main">
+
+  <!-- ---------------------------------------------------------- -->
+  <section class="section" id="trip">
+    <div class="wrap">
+      <div class="facts" id="facts"></div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------- -->
+  <section class="section" id="timeline">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="head__title">Coming <span class="head__amp">&amp;</span> going</h2>
+        <p class="head__note">
+          Every bar is one household in town, with their flights at each end —
+          everything through <strong>SJD</strong>. Send Matt yours and it lands
+          on the chart.
+        </p>
+      </div>
+      <div class="glass panel">
+        <div class="tl" id="tlChart"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------- -->
+  <section class="section" id="crew">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="head__title">The crew</h2>
+        <p class="head__note" id="crewCount"></p>
+      </div>
+      <div id="crewList"></div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------- -->
+  <section class="section" id="villa">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="head__title">The villa</h2>
+        <p class="head__note">One place, everybody under it.</p>
+      </div>
+      <div class="glass panel" id="stayPanel"></div>
+    </div>
+  </section>
+
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <p class="footer__mark">SC Reunion <span>2027</span></p>
+    <p class="footer__tagline" id="footerTagline"></p>
+    <p class="footer__note">
+      State College High, Class of 2007. Still at it.
+      <a href="#top">Back to top</a>
+    </p>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

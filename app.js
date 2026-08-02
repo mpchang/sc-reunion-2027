@@ -861,6 +861,23 @@
     return u;
   }
 
+  /* The "go here to update" button. Hidden entirely when no link is
+     configured, rather than rendering a dead control. */
+  function renderSheetLink() {
+    const host = $('#sheetCta');
+    if (!host) return;
+    const url = (typeof SHEET_EDIT === 'string' && SHEET_EDIT.trim()) || '';
+    if (!url) { host.hidden = true; return; }
+
+    const a = el('a', 'sheetlink', 'Add or update your flights');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    host.textContent = '';
+    host.appendChild(a);
+    host.hidden = false;
+  }
+
   function loadSheet() {
     const url = sheetUrl(typeof SHEET_CSV === 'string' ? SHEET_CSV : '');
     if (!url) return;
@@ -875,6 +892,7 @@
         if (!rows.length) throw new Error('no usable rows — check the header names');
         applySheet(rows);
         renderTimeline();
+  renderSheetLink();
         renderCrew();
       })
       .catch((err) => {

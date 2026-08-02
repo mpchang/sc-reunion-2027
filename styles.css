@@ -385,6 +385,29 @@ a { color: inherit; }
 }
 .head__note strong { color: var(--mango); font-weight: 600; }
 
+.head__cta { margin: 1.1rem 0 0; }
+.sheetlink {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--mango) 48%, transparent);
+  background: color-mix(in srgb, var(--mango) 13%, transparent);
+  font-family: var(--mono);
+  font-size: .74rem;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--mango);
+  text-decoration: none;
+  transition: background .3s var(--ease), border-color .3s var(--ease);
+}
+.sheetlink::after { content: '↗'; font-size: .9em; }
+.sheetlink:hover {
+  background: color-mix(in srgb, var(--mango) 24%, transparent);
+  border-color: var(--mango);
+}
+
 /* --- facts -------------------------------------------------------- */
 
 /* Explicit counts rather than auto-fit: there are exactly four facts, and

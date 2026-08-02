@@ -50,6 +50,17 @@ const TRIP = {
    Note: Google caches the published CSV, so edits can take a few
    minutes to appear. That's Google, not the site.
 ------------------------------------------------------------------ */
+/* The editable link to that same sheet, shown as a button under the
+   timeline so people know where to go. This is NOT the published CSV
+   above — that one is read-only and downloads a file when clicked. Use
+   the normal .../edit link from Google's address bar.
+
+   Anyone who can reach the site can then edit the sheet, which is the
+   same trust model as everything else here. If you'd rather not put an
+   edit link on a public page, paste a view-only link instead and keep
+   the edit one in the group chat. Leave it null to show no button. */
+const SHEET_EDIT = null;
+
 const SHEET_CSV =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1bTiCycP-fU9ZoU2uONtw5ot0e' +
   'HVzMK48_pfisiwzOi4s7fVD6JOoKLDAz732getCIjFK5DxZxeWO/pub?output=csv';

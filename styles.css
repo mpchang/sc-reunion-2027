@@ -860,9 +860,7 @@ button.bud.is-sel:hover { background: #316AC5; }
   color: #8A8A7C;
 }
 
-.info__none,
 .info__dates { margin: 0; font-size: 13px; color: #33332E; }
-.info__none { color: #7A7A6C; font-style: italic; }
 
 @media (max-width: 54rem) {
   .aim-split { grid-template-columns: minmax(0, 27rem); justify-content: center; }

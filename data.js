@@ -71,6 +71,10 @@ const MEMORIES = [
   { src: 'photos/slideshow/IMG_1811.jpg',            caption: null },
   { src: 'photos/slideshow/IMG_0257.jpg',            caption: null,                 pos: 'center 25%' },
   { src: 'photos/slideshow/IMG_2867.jpg',            caption: null,                 pos: 'center 25%' },
+  { src: 'photos/slideshow/kv_family.jpg',           caption: 'Kunal, Priya and the kids' },
+  { src: 'photos/slideshow/rohit_family.jpg',        caption: 'Rohit and family' },
+  { src: 'photos/slideshow/matching_shades.jpg',     caption: 'Matching shades',    pos: 'center 22%' },
+  { src: 'photos/slideshow/IMG_1776.jpg',            caption: null,                 pos: 'center 22%' },
 
   /* Left out on purpose — all of these are still in photos/slideshow/,
      so uncomment to put any of them back in the rotation:
@@ -80,6 +84,9 @@ const MEMORIES = [
      kv_wedding_3.GIF — only 538px wide, so it goes soft full-bleed.
      IMG_0698 — a four-panel video-call screenshot; the faces end up too
        small to read once it's cropped to a full-bleed banner.
+     IMG_2472 — a screenshot of a photo inside the Messages app, so it
+       carries a status bar, a filmstrip and a row of buttons. Re-save
+       just the photo itself and it's worth adding.
      IMG_2058 / IMG_2059 / IMG_9541 — real photos, but 473–604px wide,
        which goes to mush at full-bleed size. Re-export them larger from
        the originals and they're worth adding.

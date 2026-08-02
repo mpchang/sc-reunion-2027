@@ -499,10 +499,11 @@
 
     if (h.away) body.appendChild(el('p', 'info__away', `“${h.away}”`));
 
-    /* Coming with */
+    /* Coming with — skipped entirely for anyone travelling alone, rather
+       than printing a heading over the word "nobody". */
     const along = h.members.filter((m) => m.role !== 'og');
-    body.appendChild(el('p', 'info__label', 'Coming with'));
     if (along.length) {
+      body.appendChild(el('p', 'info__label', 'Coming with'));
       const ul = el('ul', 'info__along');
       along.forEach((m) => {
         const li = el('li', 'info__mate');
@@ -511,8 +512,6 @@
         ul.appendChild(li);
       });
       body.appendChild(ul);
-    } else {
-      body.appendChild(el('p', 'info__none', 'Nobody. Flying solo.'));
     }
 
     /* Dates */

@@ -1,0 +1,11 @@
+# Crawling is deliberately allowed here.
+#
+# The page carries <meta name="robots" content="noindex, nofollow">, and
+# that tag is what actually keeps it out of search results. Blocking
+# crawlers in this file would be counterproductive: a crawler that never
+# fetches the page never reads the noindex, so the bare URL can still end
+# up listed if it's linked from anywhere. Let them in, let them read the
+# tag, let them drop it.
+
+User-agent: *
+Allow: /

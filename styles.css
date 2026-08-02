@@ -783,13 +783,6 @@ button.bud.is-sel:hover { background: #316AC5; }
   color: #7A7A6C;
 }
 
-/* AIM greyed a buddy the moment they weren't really there, which is
-   exactly what we want to say about anyone who hasn't replied */
-.bud--offline .bud__sn { font-weight: 400; color: #8A8A7C; }
-.bud--offline .bud__icon { opacity: .5; filter: grayscale(1); }
-.bud--away .bud__sn { color: #4A4A42; }
-.bud--away .bud__icon { opacity: .78; }
-
 .aim__foot { margin: 5px 4px 2px; font-size: 10px; color: #6B6B60; }
 
 /* --- the profile pane --------------------------------------------- */
@@ -828,9 +821,7 @@ button.bud.is-sel:hover { background: #316AC5; }
   font-size: 11px;
   color: #55554C;
 }
-.info__dot { width: 8px; height: 8px; background: #9A9A8C; display: inline-block; }
-.info__status--online .info__dot { background: #2E9E3E; }
-.info__status--away .info__dot { background: #E0A11B; }
+.info__dot { width: 8px; height: 8px; background: #2E9E3E; display: inline-block; }
 
 .info__away {
   margin: 12px 0 0;

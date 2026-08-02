@@ -308,11 +308,7 @@
 
     if (!points.length) {
       const empty = el('div', 'empty');
-      empty.append(
-        el('p', 'empty__line', 'Nobody has booked yet.'),
-        el('p', 'empty__sub',
-          'Send Matt an airline, a flight number and a day, and it lands on ' +
-          'the chart next to everyone else’s.'));
+      empty.appendChild(el('p', 'empty__line', 'Nobody has booked yet.'));
       host.appendChild(empty);
     }
 
@@ -388,18 +384,14 @@
   /* ---------------------------------------------------------------
      Buddy list
 
-     The crew section is an AIM buddy list beside a profile pane. It's a
-     throwback, but the status vocabulary does real work: AIM already had
-     a word for every state a household can be in.
-       online   both dates confirmed
-       away     coming, but only one date pinned down
-       offline  hasn't answered yet
+     The crew section is an AIM buddy list beside a profile pane: the
+     seven screen names, then partners, then kids.
   --------------------------------------------------------------- */
 
-  const statusOf = (h) =>
-    (h.arrive && h.depart) ? 'online' : (h.arrive || h.depart) ? 'away' : 'offline';
-
-  const STATUS_WORD = { online: 'Online', away: 'Away', offline: 'Offline' };
+  /* Everyone shows as online, whether or not they've sent dates. The
+     list is a roster, not an RSVP tracker — the timeline above already
+     says who has confirmed what, and greying out half the group to
+     repeat it just made the section look like a graveyard. */
 
   /* AOL's running man, in the title bar where the app icon went */
   const RUNNER =
@@ -432,14 +424,13 @@
   }
 
   function buddyRow(member, h, onSelect) {
-    const status = statusOf(h);
     const isOg = member.role === 'og';
     const li = el('li');
 
     /* Only the seven ever had screen names, so only they have a profile
        to open. Partners and kids stay plain rows rather than looking
        clickable and doing nothing. */
-    const row = el(isOg ? 'button' : 'div', `bud bud--${status}`);
+    const row = el(isOg ? 'button' : 'div', 'bud');
     row.title = isOg ? `${h.lead} — ${h.short}` : `${member.name}, with ${h.short}`;
 
     if (isOg) {
@@ -461,12 +452,11 @@
 
     row.appendChild(el('span', 'bud__sn', isOg ? (h.sn || h.lead) : member.name));
 
-    /* Offline rows carry no label. AIM never wrote "offline" beside every
-       greyed-out name, and right now that would be seventeen identical
-       words stacked down the window. The grey and the group count say it. */
+    /* Dates if we have them, silence if we don't — no row announces its
+       own emptiness. */
     let meta = '';
-    if (status === 'online') meta = `${shortDay(h.arrive)} – ${shortDay(h.depart)}`;
-    else if (status === 'away') meta = shortDay(h.arrive || h.depart);
+    if (h.arrive && h.depart) meta = `${shortDay(h.arrive)} – ${shortDay(h.depart)}`;
+    else if (h.arrive || h.depart) meta = shortDay(h.arrive || h.depart);
     if (meta) row.appendChild(el('span', 'bud__meta', meta));
 
     if (h.away) row.appendChild(el('span', 'bud__away', `“${h.away}”`));
@@ -482,7 +472,6 @@
     if (!host) return;
     host.textContent = '';
 
-    const status = statusOf(h);
     host.appendChild(titleBar(h.sn || h.lead));
 
     const body = el('div', 'aim__info');
@@ -502,8 +491,8 @@
     who.append(
       el('p', 'info__sn', h.sn || h.lead),
       el('p', 'info__real', h.lead));
-    const stat = el('p', `info__status info__status--${status}`);
-    stat.append(el('span', 'info__dot'), document.createTextNode(STATUS_WORD[status]));
+    const stat = el('p', 'info__status');
+    stat.append(el('span', 'info__dot'), document.createTextNode('Online'));
     who.appendChild(stat);
     top.appendChild(who);
     body.appendChild(top);
@@ -529,9 +518,9 @@
     /* Dates */
     body.appendChild(el('p', 'info__label', 'In Cabo'));
     body.appendChild(el('p', 'info__dates',
-      status === 'online' ? `${shortDay(h.arrive)} – ${shortDay(h.depart)}`
-      : status === 'away' ? `${shortDay(h.arrive || h.depart)} — one end still open`
-      : 'Hasn’t confirmed yet'));
+      h.arrive && h.depart ? `${shortDay(h.arrive)} – ${shortDay(h.depart)}`
+      : (h.arrive || h.depart) ? `${shortDay(h.arrive || h.depart)} — one end still open`
+      : 'Dates not in yet'));
 
     host.appendChild(body);
   }
@@ -571,15 +560,13 @@
       });
       if (!rows.length) return;
 
-      const online = rows.filter((r) => statusOf(r.h) === 'online').length;
-
       const head = el('button', 'aim__group');
       head.type = 'button';
       head.setAttribute('aria-expanded', 'true');
       head.append(
         el('span', 'aim__tri', '▼'),
         el('span', 'aim__gname', g.label),
-        el('span', 'aim__gcount', `(${online}/${rows.length})`));
+        el('span', 'aim__gcount', `(${rows.length})`));
 
       const ul = el('ul', 'aim__buds');
       ul.id = `aimGroup${gi}`;
@@ -599,7 +586,7 @@
 
     win.appendChild(list);
     win.appendChild(el('p', 'aim__foot',
-      'Grey means they haven’t confirmed yet. Click a buddy for their profile.'));
+      'Click a buddy for their profile.'));
 
     const profile = el('div', 'aim aim--profile');
     profile.id = 'aimProfile';

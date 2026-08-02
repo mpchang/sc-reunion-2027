@@ -20,8 +20,13 @@ It's a static page: no build step, no dependencies, no server. Open
 
 Everything lives in `data.js`. Nothing else needs touching.
 
-**Someone books a flight** — add it to that household's `flights` array
-and set their `arrive` / `depart`:
+**Someone books a flight** — they edit the shared Google Sheet; nothing
+here changes. See `SHEET_CSV` at the top of `data.js` for the setup, the
+column names and the gotchas. The page reads the sheet on every visit
+and falls back to what's written here if it can't.
+
+To enter a flight by hand instead, add it to that household's `flights`
+array and set their `arrive` / `depart`:
 
 ```js
 arrive: '2027-02-04',

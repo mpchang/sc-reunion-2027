@@ -21,6 +21,35 @@ const TRIP = {
   tagline: 'Feliz Cumpleaños',
 };
 
+/* ------------------------------------------------------------------
+   The flight sheet.
+
+   Everyone's arrival and departure details live in a shared Google
+   Sheet, which people edit directly — there's no form on this site.
+   Paste the link here and the page reads it on every visit.
+
+   Setting it up, once:
+     1. Make a sheet with these headers on row 1, one row per household:
+          id | arriving | arr flight | from | arr time |
+               leaving  | dep flight | to   | dep time
+        Fill the id column with: barry, francois, kunal, rohit, nitin,
+        dk, matt — those have to match the ids further down this file.
+     2. Data > Data validation on the date and time columns, so people
+        get pickers instead of free text. Worth the two minutes.
+     3. Protect row 1 and the id column (Data > Protect sheets) so a
+        stray sort can't scramble it.
+     4. Share > Publish to web > CSV, and paste that link below. A
+        normal /edit link works too.
+
+   Leave it null and the page just uses whatever is written in this
+   file. If the sheet is unreachable the page still renders in full —
+   it simply won't have the flight details.
+
+   Note: Google caches the published CSV, so edits can take a few
+   minutes to appear. That's Google, not the site.
+------------------------------------------------------------------ */
+const SHEET_CSV = null;
+
 /* The villa. status: 'looking' | 'shortlist' | 'booked' */
 const STAY = {
   status: 'looking',

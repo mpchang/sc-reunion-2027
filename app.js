@@ -298,6 +298,7 @@
   function renderTimeline() {
     const host = $('#tlChart');
     if (!host) return;
+    host.textContent = '';   /* re-runnable: the sheet arrives after paint */
 
     const rows = state.households.map((h) => ({
       h, in: endpoint(h, 'in'), out: endpoint(h, 'out'),
@@ -524,10 +525,13 @@
     host.appendChild(body);
   }
 
+  let selectedId = null;
+
   function renderCrew() {
     const host = $('#crewList');
     const count = $('#crewCount');
     if (!host) return;
+    host.textContent = '';   /* re-runnable: the sheet arrives after paint */
 
     if (count) {
       count.textContent =
@@ -546,6 +550,7 @@
     const list = el('div', 'aim__list');
 
     const select = (h) => {
+      selectedId = h.id;
       list.querySelectorAll('.bud').forEach((b) => b.classList.remove('is-sel'));
       const row = list.querySelector(`.bud[data-hid="${h.id}"]`);
       if (row) row.classList.add('is-sel');
@@ -595,8 +600,12 @@
     shell.appendChild(split);
     host.appendChild(shell);
 
-    /* open on somebody, so the pane is never an empty box on load */
-    if (state.households.length) select(state.households[0]);
+    /* Open on somebody, so the pane is never an empty box on load — and
+       on a re-render, keep whoever was already open rather than snapping
+       the reader back to the first buddy. */
+    const keep = state.households.find((h) => h.id === selectedId);
+    if (keep) select(keep);
+    else if (state.households.length) select(state.households[0]);
   }
 
   /* ---------------------------------------------------------------
@@ -673,6 +682,228 @@
   }
 
   /* ---------------------------------------------------------------
+     The Google Sheet
+
+     People edit a shared sheet; the site only ever reads it, as a
+     published CSV. That keeps the whole write path inside Google's own
+     UI — no form to build, no keys, nothing to authenticate against.
+
+     Everything here is defensive on purpose. A spreadsheet cell is free
+     text: someone will type "Feb 4", or "3:40pm", or leave a note where
+     a time goes. Anything we can't confidently read is treated as
+     missing, which the page already has a designed state for. A wrong
+     time on a flight board is worse than a blank one.
+  --------------------------------------------------------------- */
+
+  /* Column headers, matched loosely: lowercased with punctuation and
+     spaces stripped, so "Arr Flight", "arr_flight" and "arrival flight"
+     all land in the same place. */
+  const COLS = {
+    id:        ['id', 'household', 'who'],
+    arriving:  ['arriving', 'arrive', 'arrival', 'arrivaldate', 'in'],
+    arrFlight: ['arrflight', 'arrivalflight', 'flightin', 'inflight'],
+    from:      ['from', 'origin', 'fromairport'],
+    arrTime:   ['arrtime', 'arrivaltime', 'timein', 'intime'],
+    leaving:   ['leaving', 'leave', 'depart', 'departure', 'departuredate', 'out'],
+    depFlight: ['depflight', 'departureflight', 'flightout', 'outflight'],
+    to:        ['to', 'destination', 'toairport'],
+    depTime:   ['deptime', 'departuretime', 'timeout', 'outtime'],
+  };
+
+  const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  /* A real CSV reader rather than split(','), because an airport or a
+     note can legitimately contain a comma inside quotes. */
+  function parseCSV(text) {
+    const rows = [];
+    let row = [], field = '', quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (quoted) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { field += '"'; i++; }
+          else quoted = false;
+        } else field += c;
+      } else if (c === '"') quoted = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else if (c !== '\r') field += c;
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    return rows.filter((r) => r.some((c) => c.trim()));
+  }
+
+  const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun',
+                  'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+  /* Accepts 2027-02-04, 2/4/2027, 4 Feb, Feb 4 2027. A year-less date is
+     assumed to be the trip's year. Anything landing wildly outside the
+     trip window is rejected rather than drawn — a typo shouldn't stretch
+     the chart axis into the last century. */
+  function readDate(raw) {
+    const v = String(raw || '').trim();
+    if (!v) return null;
+    const tripYear = parseDay(TRIP.start).getFullYear();
+    let y, m, d;
+
+    let mt = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (mt) { [, y, m, d] = mt.map(Number); }
+
+    if (!mt && (mt = v.match(/^(\d{1,2})[/.](\d{1,2})(?:[/.](\d{2,4}))?$/))) {
+      m = +mt[1]; d = +mt[2];
+      y = mt[3] ? (+mt[3] < 100 ? 2000 + +mt[3] : +mt[3]) : tripYear;
+    }
+
+    if (!mt && (mt = v.match(/^([a-z]{3,})\.?\s+(\d{1,2})(?:,?\s*(\d{4}))?$/i))) {
+      m = MONTHS.indexOf(mt[1].slice(0, 3).toLowerCase()) + 1;
+      d = +mt[2]; y = mt[3] ? +mt[3] : tripYear;
+    }
+
+    if (!mt && (mt = v.match(/^(\d{1,2})\s+([a-z]{3,})\.?(?:,?\s*(\d{4}))?$/i))) {
+      d = +mt[1]; m = MONTHS.indexOf(mt[2].slice(0, 3).toLowerCase()) + 1;
+      y = mt[3] ? +mt[3] : tripYear;
+    }
+
+    if (!m || m < 1 || m > 12 || !d || d < 1 || d > 31) return null;
+
+    const iso = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const days = Math.abs(parseDay(iso) - parseDay(TRIP.start)) / DAY_MS;
+    return days > 45 ? null : iso;
+  }
+
+  /* Accepts 15:40, 15:40:00, 3:40 PM, 3.40pm — and the decimal a Sheets
+     time cell sometimes exports as (0.652 = 15:39). */
+  function readTime(raw) {
+    const v = String(raw || '').trim();
+    if (!v) return null;
+
+    if (/^0?\.\d+$/.test(v)) {
+      const mins = Math.round(parseFloat(v) * 1440);
+      return `${String(Math.floor(mins / 60) % 24).padStart(2, '0')}:` +
+             `${String(mins % 60).padStart(2, '0')}`;
+    }
+
+    const mt = v.match(/^(\d{1,2})[:.](\d{2})(?::\d{2})?\s*(am|pm)?$/i);
+    if (!mt) return null;
+    let h = +mt[1];
+    const mi = +mt[2];
+    const ap = (mt[3] || '').toLowerCase();
+    if (ap === 'pm' && h < 12) h += 12;
+    if (ap === 'am' && h === 12) h = 0;
+    if (h > 23 || mi > 59) return null;
+    return `${String(h).padStart(2, '0')}:${String(mi).padStart(2, '0')}`;
+  }
+
+  const readPort = (raw) => {
+    const v = String(raw || '').trim().toUpperCase();
+    return /^[A-Z]{3}$/.test(v) ? v : (v || null);
+  };
+
+  const readFlightNo = (raw) => {
+    const v = String(raw || '').trim().toUpperCase().replace(/\s+/g, ' ');
+    return v || null;
+  };
+
+  /* Map the header row onto our field names, then read each row by
+     column name — never by position, so reordering columns is harmless. */
+  function readSheet(text) {
+    const rows = parseCSV(text);
+    if (rows.length < 2) return [];
+
+    const head = rows[0].map(slug);
+    const at = {};
+    Object.entries(COLS).forEach(([field, aliases]) => {
+      const i = head.findIndex((h) => aliases.includes(h));
+      if (i !== -1) at[field] = i;
+    });
+    if (at.id === undefined) return [];
+
+    return rows.slice(1).map((r) => {
+      const get = (f) => (at[f] === undefined ? '' : (r[at[f]] || '').trim());
+      return {
+        id: slug(get('id')),
+        arriving: readDate(get('arriving')),
+        leaving: readDate(get('leaving')),
+        arrFlight: readFlightNo(get('arrFlight')),
+        arrTime: readTime(get('arrTime')),
+        from: readPort(get('from')),
+        depFlight: readFlightNo(get('depFlight')),
+        depTime: readTime(get('depTime')),
+        to: readPort(get('to')),
+      };
+    }).filter((r) => r.id);
+  }
+
+  /* Only non-empty cells overwrite. A household that hasn't filled the
+     sheet in keeps whatever data.js says, rather than being blanked. */
+  function applySheet(rows) {
+    const byId = {};
+    rows.forEach((r) => { byId[r.id] = r; });
+
+    state.households.forEach((h) => {
+      const r = byId[h.id];
+      if (!r) return;
+
+      if (r.arriving) h.arrive = r.arriving;
+      if (r.leaving) h.depart = r.leaving;
+
+      const flights = [];
+      if (r.arrFlight || r.arrTime || r.from) {
+        flights.push({ dir: 'in', no: r.arrFlight, from: r.from,
+                       to: TRIP.airport, date: r.arriving, time: r.arrTime });
+      }
+      if (r.depFlight || r.depTime || r.to) {
+        flights.push({ dir: 'out', no: r.depFlight, from: TRIP.airport,
+                       to: r.to, date: r.leaving, time: r.depTime });
+      }
+      if (flights.length) h.flights = flights;
+    });
+  }
+
+  /* Accepts either the published CSV link or a plain sheet URL, since
+     it's easy to copy the wrong one out of Google. */
+  function sheetUrl(raw) {
+    const u = String(raw || '').trim();
+    if (!u) return null;
+
+    /* A plain /edit link has to be turned into a CSV export first. */
+    const isCsv = /output=csv|tqx=out:csv/.test(u);
+    const id = u.match(/\/spreadsheets\/d\/(?:e\/)?([A-Za-z0-9_-]+)/);
+    if (id && !isCsv) {
+      const gid = (u.match(/[#&?]gid=(\d+)/) || [, '0'])[1];
+      return `https://docs.google.com/spreadsheets/d/${id[1]}/gviz/tq?tqx=out:csv&gid=${gid}`;
+    }
+
+    /* Anything else is used as given — it may be a published CSV, or a
+       local file during testing. Rejecting unfamiliar URLs here just
+       makes the whole thing fail silently. */
+    return u;
+  }
+
+  function loadSheet() {
+    const url = sheetUrl(typeof SHEET_CSV === 'string' ? SHEET_CSV : '');
+    if (!url) return;
+
+    fetch(url, { cache: 'no-store' })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.text();
+      })
+      .then((text) => {
+        const rows = readSheet(text);
+        if (!rows.length) throw new Error('no usable rows — check the header names');
+        applySheet(rows);
+        renderTimeline();
+        renderCrew();
+      })
+      .catch((err) => {
+        /* The page has already rendered from data.js. A sheet that won't
+           load costs you the flight details, not the site. */
+        console.warn('[cabo] could not read the sheet:', err.message);
+      });
+  }
+
+  /* ---------------------------------------------------------------
      Go
   --------------------------------------------------------------- */
 
@@ -685,4 +916,5 @@
   renderCrew();
   renderStay();
   watchReveals();
+  loadSheet();
 })();

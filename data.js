@@ -182,7 +182,7 @@ const HOUSEHOLDS = [
     photo: 'photos/headshots/kunal.jpg',
     members: [
       { name: 'Kunal', role: 'og' },
-      { name: 'Priya', role: 'partner' },
+      { name: 'Priya', role: 'partner', photo: 'photos/headshots/priya.jpg' },
       { name: 'Kai', role: 'kid' },
       { name: 'Ava', role: 'kid' },
     ],
@@ -198,7 +198,7 @@ const HOUSEHOLDS = [
     photo: 'photos/headshots/rohit.jpg',
     members: [
       { name: 'Rohit', role: 'og' },
-      { name: 'Katie', role: 'partner' },
+      { name: 'Katie', role: 'partner', photo: 'photos/headshots/katie.jpg' },
       { name: 'Maya', role: 'kid' },
       { name: 'Sai', role: 'kid' },
     ],
@@ -214,7 +214,7 @@ const HOUSEHOLDS = [
     photo: 'photos/headshots/nitin.jpg',
     members: [
       { name: 'Nitin', role: 'og' },
-      { name: 'Michelle', role: 'partner' },
+      { name: 'Michelle', role: 'partner', photo: 'photos/headshots/michelle.jpg' },
     ],
     arrive: null,
     depart: null,
@@ -242,7 +242,7 @@ const HOUSEHOLDS = [
     photo: 'photos/headshots/matt.jpg',
     members: [
       { name: 'Matt', role: 'og' },
-      { name: 'Kat', role: 'partner' },
+      { name: 'Kat', role: 'partner', photo: 'photos/headshots/kat.jpg' },
     ],
     arrive: null,
     depart: null,

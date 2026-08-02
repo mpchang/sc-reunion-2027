@@ -405,6 +405,19 @@
   const defaultIcon = (name, cls) =>
     el('span', `bud__icon bud__icon--none${cls ? ' ' + cls : ''}`, (name[0] || '?').toUpperCase());
 
+  /* A member's own headshot, falling back to the household's for the one
+     of the seven, and to initials for anyone we have no picture of. */
+  function memberIcon(m, h, cls) {
+    const src = m.photo || (m.role === 'og' ? h.photo : null);
+    if (!src) return defaultIcon(m.name, cls);
+    const img = el('img', `bud__icon${cls ? ' ' + cls : ''}`);
+    img.src = src;
+    img.alt = '';
+    img.loading = 'lazy';
+    img.addEventListener('error', () => img.replaceWith(defaultIcon(m.name, cls)), { once: true });
+    return img;
+  }
+
   function titleBar(label) {
     const bar = el('div', 'aim__bar');
     const brand = el('span', 'aim__brand');
@@ -417,32 +430,26 @@
     return bar;
   }
 
+  /* The seven and their partners each have a profile; kids don't yet,
+     since they have no photo of their own to show. */
+  const hasProfile = (m) => m.role === 'og' || m.role === 'partner';
+  const keyOf = (m, h) => `${h.id}:${m.name}`;
+
   function buddyRow(member, h, onSelect) {
     const isOg = member.role === 'og';
+    const clickable = hasProfile(member);
     const li = el('li');
 
-    /* Only the seven ever had screen names, so only they have a profile
-       to open. Partners and kids stay plain rows rather than looking
-       clickable and doing nothing. */
-    const row = el(isOg ? 'button' : 'div', 'bud');
+    const row = el(clickable ? 'button' : 'div', 'bud');
     row.title = isOg ? `${h.lead} — ${h.short}` : `${member.name}, with ${h.short}`;
 
-    if (isOg) {
+    if (clickable) {
       row.type = 'button';
-      row.dataset.hid = h.id;
-      row.addEventListener('click', () => onSelect(h));
+      row.dataset.key = keyOf(member, h);
+      row.addEventListener('click', () => onSelect(member, h));
     }
 
-    if (isOg && h.photo) {
-      const img = el('img', 'bud__icon');
-      img.src = h.photo;
-      img.alt = '';
-      img.loading = 'lazy';
-      img.addEventListener('error', () => img.replaceWith(defaultIcon(member.name)), { once: true });
-      row.appendChild(img);
-    } else {
-      row.appendChild(defaultIcon(member.name));
-    }
+    row.appendChild(memberIcon(member, h));
 
     row.appendChild(el('span', 'bud__sn', isOg ? (h.sn || h.lead) : member.name));
 
@@ -461,30 +468,26 @@
 
   /* --- the profile pane -------------------------------------------- */
 
-  function renderProfile(h) {
+  function renderProfile(m, h) {
     const host = $('#aimProfile');
     if (!host) return;
     host.textContent = '';
 
-    host.appendChild(titleBar(h.sn || h.lead));
+    const isOg = m.role === 'og';
+    const label = isOg ? (h.sn || h.lead) : m.name;
+    host.appendChild(titleBar(label));
 
     const body = el('div', 'aim__info');
 
     const top = el('div', 'info__top');
-    if (h.photo) {
-      const img = el('img', 'info__face');
-      img.src = h.photo;
-      img.alt = h.lead;
-      img.addEventListener('error', () => img.replaceWith(defaultIcon(h.lead, 'info__face')), { once: true });
-      top.appendChild(img);
-    } else {
-      top.appendChild(defaultIcon(h.lead, 'info__face'));
-    }
+    top.appendChild(memberIcon(m, h, 'info__face'));
 
     const who = el('div', 'info__who');
     who.append(
-      el('p', 'info__sn', h.sn || h.lead),
-      el('p', 'info__real', h.lead));
+      el('p', 'info__sn', label),
+      /* the seven get their real name here; everyone else gets the
+         screen name of whoever they're travelling with */
+      el('p', 'info__real', isOg ? h.lead : `with ${h.sn || h.short}`));
     const stat = el('p', 'info__status');
     stat.append(el('span', 'info__dot'), document.createTextNode('Online'));
     who.appendChild(stat);
@@ -493,22 +496,22 @@
 
     if (h.away) body.appendChild(el('p', 'info__away', `“${h.away}”`));
 
-    /* Coming with — skipped entirely for anyone travelling alone, rather
-       than printing a heading over the word "nobody". */
-    const along = h.members.filter((m) => m.role !== 'og');
+    /* Coming with — everyone else in the household. Skipped entirely for
+       anyone travelling alone, rather than printing a heading over the
+       word "nobody". */
+    const along = h.members.filter((x) => x !== m);
     if (along.length) {
       body.appendChild(el('p', 'info__label', 'Coming with'));
       const ul = el('ul', 'info__along');
-      along.forEach((m) => {
+      along.forEach((x) => {
         const li = el('li', 'info__mate');
-        li.append(defaultIcon(m.name), el('span', null, m.name),
-          el('span', 'info__mateRole', m.role === 'kid' ? 'kid' : 'partner'));
+        li.append(memberIcon(x, h), el('span', null, x.name));
+        if (x.role !== 'og') li.appendChild(el('span', 'info__mateRole', x.role));
         ul.appendChild(li);
       });
       body.appendChild(ul);
     }
 
-    /* Dates */
     body.appendChild(el('p', 'info__label', 'In Cabo'));
     body.appendChild(el('p', 'info__dates',
       h.arrive && h.depart ? `${shortDay(h.arrive)} – ${shortDay(h.depart)}`
@@ -518,7 +521,8 @@
     host.appendChild(body);
   }
 
-  let selectedId = null;
+  let selectedKey = null;
+
 
   function renderCrew() {
     const host = $('#crewList');
@@ -542,12 +546,12 @@
 
     const list = el('div', 'aim__list');
 
-    const select = (h) => {
-      selectedId = h.id;
+    const select = (m, h) => {
+      selectedKey = keyOf(m, h);
       list.querySelectorAll('.bud').forEach((b) => b.classList.remove('is-sel'));
-      const row = list.querySelector(`.bud[data-hid="${h.id}"]`);
+      const row = list.querySelector(`.bud[data-key="${CSS.escape(selectedKey)}"]`);
       if (row) row.classList.add('is-sel');
-      renderProfile(h);
+      renderProfile(m, h);
     };
 
     GROUPS.forEach((g, gi) => {
@@ -596,9 +600,12 @@
     /* Open on somebody, so the pane is never an empty box on load — and
        on a re-render, keep whoever was already open rather than snapping
        the reader back to the first buddy. */
-    const keep = state.households.find((h) => h.id === selectedId);
-    if (keep) select(keep);
-    else if (state.households.length) select(state.households[0]);
+    let keep = null;
+    state.households.forEach((h) => h.members.forEach((m) => {
+      if (hasProfile(m) && keyOf(m, h) === selectedKey) keep = { m, h };
+    }));
+    if (keep) select(keep.m, keep.h);
+    else if (state.households.length) select(state.households[0].members[0], state.households[0]);
   }
 
   /* ---------------------------------------------------------------

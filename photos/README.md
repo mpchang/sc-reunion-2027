@@ -1,13 +1,17 @@
 # Photos
 
 ```
-headshots/   square face crops, one per household — the crew cards
+headshots/   square face crops — the buddy list and profile pane
 slideshow/   group photos — the full-bleed hero at the top of the page
 originals/   full-resolution sources, gitignored
 ```
 
-`data.js` points at both: each household's `photo:` field for headshots,
-and the `MEMORIES` array for the slideshow.
+`data.js` points at both. Each of the seven has a `photo:` on their
+household; partners have a `photo:` on their own entry in `members`.
+The slideshow comes from the `MEMORIES` array.
+
+Anyone without a headshot falls back to initials on a tinted square, so
+adding one later is a one-line change and removing one breaks nothing.
 
 ## Headshots
 

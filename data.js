@@ -59,7 +59,8 @@ const TRIP = {
    same trust model as everything else here. If you'd rather not put an
    edit link on a public page, paste a view-only link instead and keep
    the edit one in the group chat. Leave it null to show no button. */
-const SHEET_EDIT = null;
+const SHEET_EDIT =
+  'https://docs.google.com/spreadsheets/d/1OwUh9Ruo3isKBCWJVxegnH4JEBi00lSIJwSxt4SVsD8/edit';
 
 const SHEET_CSV =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1bTiCycP-fU9ZoU2uONtw5ot0e' +

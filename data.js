@@ -213,7 +213,7 @@ const HOUSEHOLDS = [
     id: 'dk',
     lead: 'Dongkeun Lee',
     short: 'DK',
-    sn: 'FlightSchool',
+    sn: 'toa166',
     photo: 'photos/headshots/dk.jpg',
     members: [
       { name: 'DK', role: 'og' },

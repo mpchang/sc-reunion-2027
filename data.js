@@ -228,7 +228,7 @@ const HOUSEHOLDS = [
     photo: 'photos/headshots/dk.jpg',
     members: [
       { name: 'DK', role: 'og' },
-      { name: 'Janice', role: 'partner' },
+      { name: 'Janice', role: 'partner', photo: 'photos/headshots/janice.jpg' },
     ],
     arrive: null,
     depart: null,

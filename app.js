@@ -615,8 +615,7 @@
       const line = el('p', 'stay__name',
         s.status === 'shortlist' ? 'Down to a few' : 'No villa yet');
       const sub = el('p', 'stay__meta',
-        `One villa for ${adults + kids} people, ${nights} nights, walkable to something. ` +
-        'Send links if you find a good one.');
+        `One villa for ${adults + kids} people, ${nights} nights, walkable to something.`);
       host.append(status, line, sub);
       return;
     }

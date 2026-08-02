@@ -50,7 +50,9 @@ const TRIP = {
    Note: Google caches the published CSV, so edits can take a few
    minutes to appear. That's Google, not the site.
 ------------------------------------------------------------------ */
-const SHEET_CSV = null;
+const SHEET_CSV =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1bTiCycP-fU9ZoU2uONtw5ot0e' +
+  'HVzMK48_pfisiwzOi4s7fVD6JOoKLDAz732getCIjFK5DxZxeWO/pub?output=csv';
 
 /* The villa. status: 'looking' | 'shortlist' | 'booked' */
 const STAY = {
